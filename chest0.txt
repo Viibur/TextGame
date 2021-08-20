@@ -1,7 +1,0 @@
-1 1 1 true Helmet 0 2 false 1
-3 5 1 true Pants 0 1 false 4
-0 13 1 true Gloves 0 1 false 2
-22 3 1 true Dagur 2 0 false 6
-0 23 1 true Hp_Vial 2 false
-0 22 1 true Hp_Vial 4 false
-12 22 1 true Key(2) false

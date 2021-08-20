@@ -1,3 +1,0 @@
-Hp_Vial 4 true
-Hp_Vial 2 true
-Gloves 0 1 true 2

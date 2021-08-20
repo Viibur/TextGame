@@ -25,7 +25,7 @@ public class Filereader {
      */
     public HashMap<Integer,List<Monster>> monsters(){
         HashMap<Integer,List<Monster>> monstersByMap = new HashMap<>();
-        try (Scanner sc = new Scanner(new File("monster"+save+".txt"))){
+        try (Scanner sc = new Scanner(new File("GameData/monster"+save+".txt"))){
             while (sc.hasNextLine()){
                 String text = sc.nextLine();
                 String[] pieces = text.split(" ");
@@ -48,7 +48,7 @@ public class Filereader {
      */
     public Hero hero(){
         Hero hero = null;
-        try (Scanner sc = new Scanner(new File("hero"+save+".txt"))){
+        try (Scanner sc = new Scanner(new File("GameData/hero"+save+".txt"))){
             String text = sc.nextLine();
             String[] pieces = text.split(" ");
 
@@ -63,7 +63,7 @@ public class Filereader {
      */
     public List<WorldMap> maps(){
         List<WorldMap> mapList = new ArrayList<>();
-        try (Scanner sc = new Scanner(new File("map0.txt"))){
+        try (Scanner sc = new Scanner(new File("GameData/map0.txt"))){
             while (sc.hasNextLine()){
                 String text = sc.nextLine();
                 String[] pieces = text.split(" ");
@@ -77,7 +77,7 @@ public class Filereader {
 
     public HashMap<Integer,List<Chest>> chests(){
         HashMap<Integer, List<Chest>> chestsByMap = new HashMap<>();
-        try (Scanner sc = new Scanner(new File("chest"+save+".txt"))) {
+        try (Scanner sc = new Scanner(new File("GameData/chest"+save+".txt"))) {
             while (sc.hasNextLine()) {
                 String text = sc.nextLine();
                 String[] pieces = text.split(" ");
@@ -106,7 +106,7 @@ public class Filereader {
 
     public List<Item> inventory(){
         List<Item> inv = new ArrayList<>();
-        try (Scanner sc = new Scanner(new File("inventory"+save+".txt"))) {
+        try (Scanner sc = new Scanner(new File("GameData/inventory"+save+".txt"))) {
             while (sc.hasNextLine()) {
                 String text = sc.nextLine();
                 String[] pieces = text.split(" ");
@@ -126,44 +126,48 @@ public class Filereader {
     public void writeToSave(int save,Hero hero,HashMap<Integer, List<Monster>> monsters,HashMap<Integer, List<Chest>> chests){
         //hero
         try {
-            FileWriter fw = new FileWriter("hero"+save+".txt");
-            fw.flush();
+            FileWriter fw = new FileWriter("GameData/hero"+save+".txt",true);
             fw.append(hero.fileFormat());
             fw.close();
-        }catch (IOException ignored){}
+        }catch (IOException e){
+            System.out.println(e);
+        }
 
         //monsters
         try {
-            FileWriter fw = new FileWriter("monster"+save+".txt");
-            fw.flush();
+            FileWriter fw = new FileWriter("GameData/monster"+save+".txt",true);
             for (Integer key : monsters().keySet()) {
-                for (Monster elem : monsters.get(key)) {
+                List<Monster> monstersByLevels = monsters.get(key);
+                for (Monster elem : monstersByLevels) {
                     fw.append(elem.fileFormat()).append("\n");
                 }
             }
             fw.close();
-        }catch (IOException ignored) {}
+        }catch (IOException e){System.out.println(e);};
         //chests
         try {
-            FileWriter fw = new FileWriter("chest"+save+".txt");
-            fw.flush();
+            FileWriter fw = new FileWriter("GameData/chest"+save+".txt",true);
             for (Integer key : chests().keySet()) {
-                for (Chest elem : chests.get(key)) {
+                List<Chest> chestsByLevel = chests.get(key);
+                for (Chest elem : chestsByLevel) {
                     fw.append(elem.fileFormat()).append("\n");
                 }
             }
             fw.close();
-        }catch (IOException ignored){}
+        }catch (IOException e){
+            System.out.println(e);
+        }
 
         //inventory
         try {
-            FileWriter fw = new FileWriter("inventory"+save+".txt");
-            fw.flush();
+            FileWriter fw = new FileWriter("GameData/inventory"+save+".txt",true);
             List<Item> inv = hero.getInv();
             for (Item item : inv) {
                 fw.append(hero.fileFormatInventory(item)).append("\n");
             }
             fw.close();
-        }catch (IOException ignored){}
+        }catch (IOException e){
+            System.out.println(e);
+        }
     }
 }

@@ -9,7 +9,7 @@ public class Main {
     static Hero hero;
     static HashMap<Integer, List<Monster>> monsters;
     static HashMap<Integer, List<Chest>> chests;
-    static List<WorldMap> maps;
+    static List<WorldMap> maps = new Filereader(0).maps();
     static Scanner ui = new Scanner(System.in);
     static boolean safeend = false; //to end the game after saving
 
