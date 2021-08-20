@@ -21,8 +21,8 @@ public class Control {
         hero.updateHandMap(enemy.getName()+" "+enemy.getX()+" "+enemy.getY());
 
         Scanner ui = new Scanner(System.in);
-        int heroDF = hero.getBaseDEF() + Inventory.invDef();
-        int heroDMG = hero.getBaseDMG() + Inventory.invDmg();
+        int heroDF = hero.getBaseDEF() + Hero.invDef();
+        int heroDMG = hero.getBaseDMG() + Hero.invDmg();
 
         int enemyDF = enemy.getDEF();
         int enemyDMG = enemy.getDMG();

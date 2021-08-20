@@ -4,7 +4,7 @@ import java.util.List;
 This class is for the location of all game objects and contains the method for hero movement
  */
 public class Location {
-    List<WorldMap> maps = new Filereader().maps();
+    List<WorldMap> maps = new Filereader(0).maps();
     private int x;
     private int y;
 

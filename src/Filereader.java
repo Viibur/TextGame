@@ -5,25 +5,34 @@ This class is to read in info from the files that make up the games info
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
 public class Filereader {
+    private final int save;
+
+    public Filereader(int save) {
+        this.save = save;
+    }
+
     /**
      * Reads in the monster file and returns a HashMap on which map the monsters are on
      * and the List which contains all of the monsters on that level
      */
     public HashMap<Integer,List<Monster>> monsters(){
         HashMap<Integer,List<Monster>> monstersByMap = new HashMap<>();
-        try (Scanner sc = new Scanner(new File("monsters.txt"))){
+        try (Scanner sc = new Scanner(new File("monster"+save+".txt"))){
             while (sc.hasNextLine()){
                 String text = sc.nextLine();
                 String[] pieces = text.split(" ");
                 int mapLvl = Integer.parseInt(pieces[6]);
                 Location monsterLocation = new Location(Integer.parseInt(pieces[4]),Integer.parseInt(pieces[5]));
                 Monster monster = new Monster(pieces[0], Integer.parseInt(pieces[1]),Integer.parseInt(pieces[2]),Integer.parseInt(pieces[3]),monsterLocation,mapLvl,Boolean.parseBoolean(pieces[7]));
+
                 if (monstersByMap.containsKey(mapLvl))
                     monstersByMap.get(mapLvl).add(monster);
                 else {
@@ -39,21 +48,22 @@ public class Filereader {
      */
     public Hero hero(){
         Hero hero = null;
-        try (Scanner sc = new Scanner(new File("hero.txt"))){
+        try (Scanner sc = new Scanner(new File("hero"+save+".txt"))){
             String text = sc.nextLine();
             String[] pieces = text.split(" ");
 
-            Location heroLocation = new Location(Integer.parseInt(pieces[6]),Integer.parseInt(pieces[7]));
-            hero = new Hero(pieces[0],Integer.parseInt(pieces[1]),Integer.parseInt(pieces[2]),Integer.parseInt(pieces[3]),Integer.parseInt(pieces[4]),Integer.parseInt(pieces[5]),heroLocation,Integer.parseInt(pieces[9]),Boolean.parseBoolean(pieces[10]));
+            Location heroLocation = new Location(Integer.parseInt(pieces[7]),Integer.parseInt(pieces[8]));
+            hero = new Hero(pieces[0],Integer.parseInt(pieces[1]),Integer.parseInt(pieces[2]),Integer.parseInt(pieces[3]),Integer.parseInt(pieces[4]),Integer.parseInt(pieces[5]),Integer.parseInt(pieces[6]),heroLocation,Integer.parseInt(pieces[9]),Boolean.parseBoolean(pieces[10]));
         }catch (FileNotFoundException ignored){}
+        Hero.setStored(inventory());
         return hero;
     }
     /**
-     * Reads in the maps file and returns a List on all the maps in order(maps.txt is already created in order)
+     * Reads in the maps file and returns a List on all the maps in order(map0.txt is already created in order)
      */
     public List<WorldMap> maps(){
         List<WorldMap> mapList = new ArrayList<>();
-        try (Scanner sc = new Scanner(new File("maps.txt"))){
+        try (Scanner sc = new Scanner(new File("map0.txt"))){
             while (sc.hasNextLine()){
                 String text = sc.nextLine();
                 String[] pieces = text.split(" ");
@@ -67,7 +77,7 @@ public class Filereader {
 
     public HashMap<Integer,List<Chest>> chests(){
         HashMap<Integer, List<Chest>> chestsByMap = new HashMap<>();
-        try (Scanner sc = new Scanner(new File("chests.txt"))) {
+        try (Scanner sc = new Scanner(new File("chest"+save+".txt"))) {
             while (sc.hasNextLine()) {
                 String text = sc.nextLine();
                 String[] pieces = text.split(" ");
@@ -75,10 +85,12 @@ public class Filereader {
 
                 Chest chest;
                 if (pieces.length == 9)
-                    chest = new Chest(new Location(Integer.parseInt(pieces[0]),Integer.parseInt(pieces[1])),Boolean.parseBoolean(pieces[3]),new Item(pieces[4],Integer.parseInt(pieces[5]),Integer.parseInt(pieces[6]),Boolean.parseBoolean(pieces[7]),Integer.parseInt(pieces[8])));
+                    chest = new Chest(new Location(Integer.parseInt(pieces[0]),Integer.parseInt(pieces[1])),mapLvl,Boolean.parseBoolean(pieces[3]),new Item(pieces[4],Integer.parseInt(pieces[5]),Integer.parseInt(pieces[6]),Boolean.parseBoolean(pieces[7]),Integer.parseInt(pieces[8])));
                 else if (pieces.length == 7)
-                    chest = new Chest(new Location(Integer.parseInt(pieces[0]),Integer.parseInt(pieces[1])),Boolean.parseBoolean(pieces[3]),new Item(pieces[4],Integer.parseInt(pieces[5]),Boolean.parseBoolean(pieces[6])));
-                else chest = new Chest(new Location(Integer.parseInt(pieces[0]),Integer.parseInt(pieces[1])),Boolean.parseBoolean(pieces[3]),new Item(pieces[4],Boolean.parseBoolean(pieces[5])));
+                    chest = new Chest(new Location(Integer.parseInt(pieces[0]),Integer.parseInt(pieces[1])),mapLvl,Boolean.parseBoolean(pieces[3]),new Item(pieces[4],Integer.parseInt(pieces[5]),Boolean.parseBoolean(pieces[6])));
+                else if (pieces.length == 5)
+                    chest = new Chest(new Location(Integer.parseInt(pieces[0]),Integer.parseInt(pieces[1])),mapLvl,Boolean.parseBoolean(pieces[3]),new Item());
+                else chest = new Chest(new Location(Integer.parseInt(pieces[0]),Integer.parseInt(pieces[1])),mapLvl,Boolean.parseBoolean(pieces[3]),new Item(pieces[4],Boolean.parseBoolean(pieces[5])));
 
                 if (chestsByMap.containsKey(mapLvl))
                     chestsByMap.get(mapLvl).add(chest);
@@ -94,7 +106,7 @@ public class Filereader {
 
     public List<Item> inventory(){
         List<Item> inv = new ArrayList<>();
-        try (Scanner sc = new Scanner(new File("inventory.txt"))) {
+        try (Scanner sc = new Scanner(new File("inventory"+save+".txt"))) {
             while (sc.hasNextLine()) {
                 String text = sc.nextLine();
                 String[] pieces = text.split(" ");
@@ -109,5 +121,49 @@ public class Filereader {
             }
         }catch (FileNotFoundException ignored){}
         return inv;
+    }
+
+    public void writeToSave(int save,Hero hero,HashMap<Integer, List<Monster>> monsters,HashMap<Integer, List<Chest>> chests){
+        //hero
+        try {
+            FileWriter fw = new FileWriter("hero"+save+".txt");
+            fw.flush();
+            fw.append(hero.fileFormat());
+            fw.close();
+        }catch (IOException ignored){}
+
+        //monsters
+        try {
+            FileWriter fw = new FileWriter("monster"+save+".txt");
+            fw.flush();
+            for (Integer key : monsters().keySet()) {
+                for (Monster elem : monsters.get(key)) {
+                    fw.append(elem.fileFormat()).append("\n");
+                }
+            }
+            fw.close();
+        }catch (IOException ignored) {}
+        //chests
+        try {
+            FileWriter fw = new FileWriter("chest"+save+".txt");
+            fw.flush();
+            for (Integer key : chests().keySet()) {
+                for (Chest elem : chests.get(key)) {
+                    fw.append(elem.fileFormat()).append("\n");
+                }
+            }
+            fw.close();
+        }catch (IOException ignored){}
+
+        //inventory
+        try {
+            FileWriter fw = new FileWriter("inventory"+save+".txt");
+            fw.flush();
+            List<Item> inv = hero.getInv();
+            for (Item item : inv) {
+                fw.append(hero.fileFormatInventory(item)).append("\n");
+            }
+            fw.close();
+        }catch (IOException ignored){}
     }
 }

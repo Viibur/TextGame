@@ -1,28 +1,65 @@
 /*
 Main function to run the game
  */
+import java.io.IOException;
 import java.util.*;
 
 public class Main {
-    static Filereader fr = new Filereader();
-    static Hero hero = fr.hero();
-    static HashMap<Integer, List<Monster>> monsters = fr.monsters();
-    static HashMap<Integer, List<Chest>> chests = fr.chests();
-    static List<WorldMap> maps = fr.maps();
+    static Filereader fr;
+    static Hero hero;
+    static HashMap<Integer, List<Monster>> monsters;
+    static HashMap<Integer, List<Chest>> chests;
+    static List<WorldMap> maps;
     static Scanner ui = new Scanner(System.in);
+    static boolean safeend = false; //to end the game after saving
 
     public static void main(String[] args) {
-        System.out.println("You awaken in a strange place. Wtf is going on?\n" +
-                           "You are naked and only have a dagger... Maybe 'help' would give some useful tips?");
+        System.out.println("Begin new game or load save(1-2)");
+        int answ;
+        String answer;
+        while (true) {
+            answer = ui.nextLine();
+            try {
+                answ = Integer.parseInt(answer);
+                if (answ == 1 || answ == 2)
+                    break;
+                else System.out.println("Enter a number from 1 to 3");
+            } catch (NumberFormatException ignored) {
+                System.out.println("Please enter either 1 or 2");
+            }
+        }
+        if (answ == 1) {
+            answ = 0;
+            System.out.println("You awaken in a strange place. Wtf is going on?\n" +
+                    "You are naked and only have a dagger... Maybe 'help' would give some useful tips?");
+        }else {
+            System.out.println("Choose a save to load(1-3)");
+            while (true){
+                answer = ui.nextLine();
+                try {
+                    answ = Integer.parseInt(answer);
+                    if (answ > 0 && answ < 4)
+                        break;
+                    else System.out.println("Enter a number from 1 to 3");
+                }catch (NumberFormatException ignored){
+                    System.out.println("Please enter a number between 1 and 3");
+                }
+            }
+        }
+        fr = new Filereader(answ);
+        hero = fr.hero();
+        monsters = fr.monsters();
+        chests = fr.chests();
         //while the Hero is alive
-        while (hero.isStatus()) {
+        while (hero.isStatus() && !safeend) {
             //randomly tells the user where to head to get to the next lvl
             if (Math.random() > 0.771 && Math.random() < 0.221)
                 System.out.println("You suddenly feel a pull towards the direction of "+ Arrays.toString(maps.get(hero.getMap() - 1).getToNext()));
-            String answer = ui.nextLine();
+            answer = ui.nextLine();
             inputcheck(answer);
         }
-        System.out.println("You have died");
+        if (!hero.isStatus())
+            System.out.println("You have died");
     }
 
     public static void inputcheck(String answer) {
@@ -55,6 +92,7 @@ public class Main {
                 answer = ui.nextLine();
                 while (!answer.contains("y") || !answer.contains("n")) {
                     if (answer.contains("y")) {
+                        System.out.println("You step on to the altar and after blinking your eyes, you're on another level");
                         hero.setMap(hero.getMap()+1);
                         hero.getLocation().setX(0);
                         hero.getLocation().setY(0);
@@ -68,6 +106,7 @@ public class Main {
                 answer = ui.nextLine();
                 while (true) {
                     if (answer.contains("y")) {
+                        System.out.println("You step on to the altar and after blinking are back on the previous area");
                         hero.setMap(hero.getMap()-1);
                         hero.getLocation().setX(maps.get(hero.getMap()-1).getToNext()[0]);
                         hero.getLocation().setY(maps.get(hero.getMap()-1).getToNext()[1]);
@@ -91,8 +130,8 @@ public class Main {
         else if (answer.contains("stats") || answer.contains("status")){
             System.out.println("Your Stats:\n" +
                                 "HP:"+hero.getHealth()+"/"+hero.getMaxHP()+"\n" +
-                                "DMG:"+hero.getBaseDMG()+" + "+Inventory.invDmg()+"\n" +
-                                "DEF:"+hero.getBaseDEF()+" + "+Inventory.invDef()+"\n"+
+                                "DMG:"+hero.getBaseDMG()+" + "+Hero.invDmg()+"\n" +
+                                "DEF:"+hero.getBaseDEF()+" + "+ Hero.invDef()+"\n"+
                                 "You are level " + hero.getLevel() + ". And have " + hero.getExp() + "xp");}
 
             //user can check what level they are and how much exp they have at that level
@@ -113,6 +152,23 @@ public class Main {
         }
         else if(answer.contains("drink")){
             drink();
+        }
+        else if (answer.contains("save")){
+            System.out.println("Choose a save(1-3)");
+            int answ;
+            while (true){
+                answer = ui.nextLine();
+                try {
+                    answ = Integer.parseInt(answer);
+                    if (answ < 4 && answ > 0)
+                        break;
+                    else System.out.println("Enter a number from 1 to 3");
+                }catch (NumberFormatException ignored){
+                    System.out.println("Enter a number from 1 to 3");
+                }
+            }
+            fr.writeToSave(answ,hero,monsters,chests);
+            safeend = true;
         }
     }
 

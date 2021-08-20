@@ -17,10 +17,11 @@ public class Hero {
     private int mapLvl; //on which map/level currently on
     private boolean status; //alive or not
     private int maxHP; //max possible hp
-    private List<Item> inv = Inventory.get();
     private Map<Integer, List<String>> handMap = new HashMap<>();
+    private static List<Item> stored;
+    private int save;
 
-    public Hero(String name, int level,int exp, int health, int baseDMG, int baseDEF, Location location, int mapLvl, boolean status) {
+    public Hero(String name, int level,int exp, int health, int maxHP,int baseDMG, int baseDEF, Location location, int mapLvl, boolean status) {
         this.name = name;
         this.level = level;
         this.exp = exp;
@@ -30,7 +31,14 @@ public class Hero {
         this.location = location;
         this.mapLvl = mapLvl;
         this.status = status;
-        this.maxHP = health;
+        this.maxHP = maxHP;
+    }
+
+    public void setSave(int nr){
+        this.save = nr;
+    }
+    public int getSave(){
+        return this.save;
     }
 
     public int getLevel() {
@@ -147,7 +155,7 @@ public class Hero {
     }
 
     public List<Item> getInv(){
-        return inv;
+        return stored;
     }
 
     public void updateHandMap(String info) {
@@ -195,5 +203,46 @@ public class Hero {
         catch (NullPointerException e) {
             System.out.println("You haven't discovered anything on this map yet");
         }
+    }
+
+    public static void setStored(List<Item> inv){
+        stored = inv;
+    }
+
+    public static int invDmg(){
+        int dmg = 0;
+        for (Item item:stored) {
+            dmg += item.getDmg();
+        }
+        return dmg;
+    }
+    public static int invDef(){
+        int def = 0;
+        for (Item item:stored) {
+            def += item.getDef();
+        }
+        return def;
+    }
+
+    public String fileFormat(){
+        String toFile = "";
+        int[] xy = getXY();
+        toFile += name+" "+getLevel()+" "+getExp()+" "+getHealth()+" "+getMaxHP()+" "+getBaseDMG()+" "+getBaseDEF()+" ";
+        toFile += xy[0]+" "+xy[1]+" "+getMap()+" "+isStatus();
+        return toFile;
+    }
+
+    public String fileFormatInventory(Item item){
+        String toFile = "";
+        String name = item.getName();
+        if (name.contains(" "))
+            name = name.replace(" ","_");
+
+        if (item.getType() == 1)
+            toFile += name+" "+item.getDmg()+" "+item.getDef()+" "+item.getLocation()+" "+item.getPosition();
+        else if (item.getType() == 2)
+            toFile += name+" "+item.getHeal()+" "+item.getLocation();
+        else toFile += name+" "+item.getLocation();
+        return toFile;
     }
 }

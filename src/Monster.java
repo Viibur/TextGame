@@ -64,12 +64,22 @@ public class Monster {
     }
 
     //get the location the Monster is on
-    public Location getLocation(){
-        return this.location;
+    public String getLocationXY(){
+        int x = location.getX();
+        int y = location.getY();
+        return x+" "+y;
     }
 
     public int getMaplevel() {
         return this.mapLvl;
+    }
+
+    public String fileFormat(){
+        String toFile = "";
+        toFile += getName()+" "+getHealth()+" "+getDMG()+" "+getDEF()+" ";
+        toFile += getLocationXY()+" ";
+        toFile += getMaplevel()+" "+isStatus();
+        return toFile;
     }
 
 }
