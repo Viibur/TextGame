@@ -6,7 +6,7 @@ public class Monster {
     private int health; //current hp
     private final int maxHP; //max possible hp
     private final int DMG;
-    private final int DEF;
+    private int DEF;
     private final Location location; //location on the map
     private final int mapLvl;//map on which the monster is on
     private boolean status;//has been defeated or not
@@ -57,6 +57,10 @@ public class Monster {
 
     public int getDEF() {
         return DEF;
+    }
+
+    public void setDEF(int newDEF){
+        DEF += newDEF;
     }
 
     public boolean isStatus() {

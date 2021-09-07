@@ -75,10 +75,11 @@ public class Location {
     }
 
     public String toString() {
-        return "Location: x=" + x +", y=" + y;
+        return "Location: " + x +" " + y;
     }
 
     public void setPos(int X, int Y, Hero hero) {
+        //method for fleeing, randomly flees the hero to coordinates
         if (Math.random() > 0.5)
             hero.getLocation().setPos("right "+X, maps.get(hero.getMap() - 1));
         else hero.getLocation().setPos("left "+X, maps.get(hero.getMap() - 1));
@@ -88,4 +89,6 @@ public class Location {
         else hero.getLocation().setPos("down "+Y,maps.get(hero.getMap()-1));
 
     }
+
+    public List<WorldMap> getMaps(){return maps;}
 }

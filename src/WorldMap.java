@@ -29,4 +29,6 @@ public class WorldMap {
     public int[] getToNext() {
         return toNext;
     }
+
+    public String toNextXY(){return toNext[0]+" "+toNext[1];}
 }

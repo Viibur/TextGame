@@ -55,10 +55,10 @@ public class Control {
                     System.out.println("You use your special ability and hit the enemy");
                     //special attack reduces enemy def and deal light dmg
                     if (enemyDF >= 10) {
-                        enemyDF -= enemyDF * 0.1;
-                        System.out.println("You manage to reduce your opponents DEF by " + enemyDF * 0.1);
-                    } else if (Math.random() > 0.5) {
-                        enemyDF -= 1;
+                        enemy.setDEF((int) (0-enemyDF * 0.1));
+                        System.out.println("You manage to reduce your opponents DEF by " + (int)(enemyDF * 0.1));
+                    } else{
+                        enemy.setDEF(-1);
                         System.out.println("You manage to reduce your opponents DEF by 1");
                     }
                 }else System.out.println("You try to use your special ability, but have recently used it and hence can't attack");
@@ -100,7 +100,19 @@ public class Control {
         }
         if (hero.isStatus() && !enemy.isStatus()) {
             System.out.println("You manage to beat the opponent and you notice that a light escapes the monster and hits you in the chest");
-            hero.setExp(10);
+            hero.setExp(hero.getMap()*10);
+            //if the enemy is on the portal to the next level(level boss) then tell the player where the key location is
+            if (enemy.getLocationXY().equals(hero.getLocation().getMaps().get(hero.getMap()-1).toNextXY())){
+                System.out.println("The enemy drops a paper with two strange numbers ");
+                if (hero.getMap() == 1)
+                    System.out.print("12 22");
+                else if (hero.getMap() == 2)
+                    System.out.print("");
+                else if (hero.getMap() == 3)
+                    System.out.print("");
+                else if (hero.getMap() == 4)
+                    System.out.print("");
+            }
         }
     }
 

@@ -1,6 +1,4 @@
-/*
-Main function to run the game
- */
+//Main function of the game
 import java.io.IOException;
 import java.util.*;
 
@@ -13,27 +11,33 @@ public class Main {
     static Scanner ui = new Scanner(System.in);
     static boolean safeend = false; //to end the game after saving
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.out.println("Begin new game or load save(1-2)");
         int answ;
         String answer;
+        //checks the input of weather to start new game or load game
         while (true) {
             answer = ui.nextLine();
             try {
                 answ = Integer.parseInt(answer);
+                //if a valid answer, break loop
                 if (answ == 1 || answ == 2)
                     break;
-                else System.out.println("Enter a number from 1 to 3");
+                else System.out.println("Enter a number from 1 to 2");
             } catch (NumberFormatException ignored) {
                 System.out.println("Please enter either 1 or 2");
             }
         }
+        //if new game, load from beginning files and start from there
         if (answ == 1) {
             answ = 0;
             System.out.println("You awaken in a strange place. Wtf is going on?\n" +
                     "You are naked and only have a dagger... Maybe 'help' would give some useful tips?");
-        }else {
+        }
+        //if load game, choose a load
+        else {
             System.out.println("Choose a save to load(1-3)");
+            //checks answers until a valid save option is entered
             while (true){
                 answer = ui.nextLine();
                 try {
@@ -46,27 +50,39 @@ public class Main {
                 }
             }
         }
+        //depending on answers make a new game(0) or load a save(1-3)
         fr = new Filereader(answ);
         hero = fr.hero();
         monsters = fr.monsters();
         chests = fr.chests();
-        //while the Hero is alive
+        hero.setHandMap(fr.handMap());
+        //while the Hero is alive and is not a safe end(player opted end or save)
         while (hero.isStatus() && !safeend) {
             //randomly tells the user where to head to get to the next lvl
-            if (Math.random() > 0.771 && Math.random() < 0.221)
-                System.out.println("You suddenly feel a pull towards the direction of "+ Arrays.toString(maps.get(hero.getMap() - 1).getToNext()));
-            answer = ui.nextLine();
+            if (Math.random() > 0.771 && Math.random() < 0.221) {
+                int[] xy = maps.get(hero.getMap() - 1).getToNext();
+                System.out.println("You suddenly feel a pull towards the direction of "+xy[0]+" "+xy[1]);
+            }
+                answer = ui.nextLine();
             inputcheck(answer);
         }
         if (!hero.isStatus())
             System.out.println("You have died");
     }
 
-    public static void inputcheck(String answer) {
-        //helps the user
+    public static void inputcheck(String answer) throws IOException {
+        //if the user enter help, give advice
         if (answer.contains("help")) {
-            System.out.println("To move type 'left x' to move x amount of steps or 'left' to move 1 step. Works for all directions");
-            System.out.println("Viable commands: up, down, right, left, rest, stats, location, inv, read");
+            System.out.println("""
+                    Viable commands:
+                    up, down, right, left - movement commands, if no number after command, moves 1 step
+                    rest - heals the hero for 1 HP
+                    stats - shows the stats of the player with level and xp
+                    location - shows the location of the hero along with the map
+                    inv - shows all of the items the hero has equipped/is carrying
+                    read - shows all of the discovered entities on the current map
+                    Chests are looted when the player stands on them
+                    Fights with enemies trigger when hero is +-1 steps from the enemy or on the enemy""");
         }
         //movement
         else if (answer.contains("up") || answer.contains("down") || answer.contains("right") || answer.contains("left")) {
@@ -87,35 +103,11 @@ public class Main {
 
             }catch (NullPointerException | InterruptedException ignored){}
 
-            if (hero.isStatus() && Arrays.equals(hero.getXY(), maps.get(hero.getMap()-1).getToNext())) {
-                System.out.println("You can use this place to move to the next level. Do you wish to continue? (y/n)");
-                answer = ui.nextLine();
-                while (!answer.contains("y") || !answer.contains("n")) {
-                    if (answer.contains("y")) {
-                        System.out.println("You step on to the altar and after blinking your eyes, you're on another level");
-                        hero.setMap(hero.getMap()+1);
-                        hero.getLocation().setX(0);
-                        hero.getLocation().setY(0);
-                        break;
-                    } else if (answer.contains("n"))
-                        break;
-                    answer = ui.nextLine();
-                }
-            } else if (hero.isStatus() && Arrays.equals(hero.getXY(), new int[]{0, 0}) && hero.getMap() != 1) {
-                System.out.println("You can use this place to move to the previous level. Do you wish to continue? (y/n)");
-                answer = ui.nextLine();
-                while (true) {
-                    if (answer.contains("y")) {
-                        System.out.println("You step on to the altar and after blinking are back on the previous area");
-                        hero.setMap(hero.getMap()-1);
-                        hero.getLocation().setX(maps.get(hero.getMap()-1).getToNext()[0]);
-                        hero.getLocation().setY(maps.get(hero.getMap()-1).getToNext()[1]);
-                        break;
-                    } else if (answer.contains("n"))
-                        break;
-                    answer = ui.nextLine();
-                }
-            }
+            //checks if hero is on an altar to go to next or previous level
+            if (Arrays.equals(hero.getXY(), maps.get(hero.getMap()-1).getToNext()))
+                toNextLevel();
+            else if (Arrays.equals(hero.getXY(), new int[]{0, 0}) && hero.getMap() != 1)
+                toPreviousLevel();
         }
         //if hp is not full, recover
         else if (answer.contains("rest")) {
@@ -172,6 +164,46 @@ public class Main {
         }
     }
 
+    private static void toPreviousLevel() {
+        System.out.println("You can use this place to move to the previous level. Do you wish to continue? (y/n)");
+        String answer = ui.nextLine();
+        while (true) {
+            if (answer.contains("y")) {
+                System.out.println("You step on to the altar and after blinking are back on the previous area");
+                hero.setMap(hero.getMap()-1);
+                hero.getLocation().setX(maps.get(hero.getMap()-1).getToNext()[0]);
+                hero.getLocation().setY(maps.get(hero.getMap()-1).getToNext()[1]);
+                break;
+            } else if (answer.contains("n"))
+                break;
+            answer = ui.nextLine();
+        }
+    }
+
+    private static void toNextLevel() {
+        System.out.println("You can use this place to move to the next level. Do you wish to continue? (y/n)");
+        String answer = ui.nextLine();
+        while (true) {
+            if (answer.contains("y")) {
+                List<String> names = hero.getInvName();
+                if (names.contains("key("+(hero.getMap()+1)+")")) {
+                    System.out.println("You step on to the altar and after blinking your eyes, you're on another level");
+                    hero.setMap(hero.getMap() + 1);
+                    hero.getLocation().setX(0);
+                    hero.getLocation().setY(0);
+
+                }
+                else System.out.println("You lack the key to the next level");
+                break;
+            } else if (answer.contains("n"))
+                break;
+            answer = ui.nextLine();
+        }
+    }
+
+    /**
+     * Method for drinking hp potions
+     */
     public static void drink(){
         ArrayList<Item> potions = new ArrayList<>();
         boolean found = false;

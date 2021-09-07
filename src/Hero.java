@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
 This class is for the hero, contains all relevant info (in my opinion)
@@ -19,7 +16,6 @@ public class Hero {
     private int maxHP; //max possible hp
     private Map<Integer, List<String>> handMap = new HashMap<>();
     private static List<Item> stored;
-    private int save;
 
     public Hero(String name, int level,int exp, int health, int maxHP,int baseDMG, int baseDEF, Location location, int mapLvl, boolean status) {
         this.name = name;
@@ -32,13 +28,6 @@ public class Hero {
         this.mapLvl = mapLvl;
         this.status = status;
         this.maxHP = maxHP;
-    }
-
-    public void setSave(int nr){
-        this.save = nr;
-    }
-    public int getSave(){
-        return this.save;
     }
 
     public int getLevel() {
@@ -158,6 +147,17 @@ public class Hero {
         return stored;
     }
 
+    public List<String> getInvName(){
+        List<String> names = new ArrayList<>();
+        for (Item elem:getInv()) {
+            names.add(elem.getName().toLowerCase(Locale.ROOT));
+        }
+        return names;
+    }
+    public void setHandMap(HashMap<Integer,List<String>> handMapIn){
+        handMap = handMapIn;
+    }
+
     public void updateHandMap(String info) {
         //maplvlv, list of all that maplvl has
         if (handMap.containsKey(mapLvl)){
@@ -175,7 +175,7 @@ public class Hero {
     }
 
     /**
-     * Checks if location has been added to the handMap
+     * Checks if location has been added to the handMap, chests
      * @param x - x coordinate
      * @param y - y coordiante
      * @return - boolean, depends on if the location has been added
@@ -244,5 +244,15 @@ public class Hero {
             toFile += name+" "+item.getHeal()+" "+item.getLocation();
         else toFile += name+" "+item.getLocation();
         return toFile;
+    }
+
+    public List<String> fileFormatHandMap(){
+        List<String> handMapToString = new ArrayList<>();
+        for (Integer key: handMap.keySet()) {
+            for (String elem:handMap.get(key)) {
+                handMapToString.add(key+" "+elem);
+            }
+        }
+        return handMapToString;
     }
 }

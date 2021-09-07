@@ -65,10 +65,12 @@ public class Item {
 
     @Override
     public String toString() {
+        String name = getName();
+        name = name.replace(" ","_");
         if(getHeal() != 0)
-            return getName() + ", heals "+ getHeal()+" HP";
+            return name + ", heals "+ getHeal()+" HP";
         else if (getDmg() == 0 && getDef() == 0)
-            return getName();
-        else return getName() +", dmg: " + getDmg() +", def: " + getDef();
+            return name;
+        else return name +", dmg: " + getDmg() +", def: " + getDef();
     }
 }
