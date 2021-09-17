@@ -1,0 +1,5 @@
+Dagger 1 0 true 6
+Key(2) true
+Helmet 0 2 true 1
+Pants 0 1 true 4
+Gloves 0 1 true 2

@@ -1,0 +1,14 @@
+1 1 1 false  false
+3 5 1 false  false
+0 13 1 false  false
+22 3 1 true Dagur 2 0 false 6
+0 23 1 true false
+21 13 1 true false
+12 22 1 true Key(2) false
+30 15 2 true Key(3) false
+33 32 3 true Key(4) false
+47 3 4 true Key(5) false
+15 17 2 true false
+28 7 2 true Boots 0 2 false 5
+5 4 2 true false
+1 2 2 true false
